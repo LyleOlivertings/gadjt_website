@@ -13,3 +13,5 @@ export const getProductDetails = async (productId: string) => {
   const product = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}`,{ cache: "no-store" })
   return await product.json()
 }
+
+
