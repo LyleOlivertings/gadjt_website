@@ -5,6 +5,8 @@ import CouponInput from "@/components/CouponInput";
 import useCart from "@/lib/hooks/useCart";
 import { MinusCircle, PlusCircle, Trash } from "lucide-react";
 import Image from "next/image";
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 type Coupon = {
   type: "fixed" | "percentage";
@@ -17,6 +19,8 @@ const coupons: Record<string, Coupon> = {
 };
 
 const Cart = () => {
+  const router = useRouter();
+  const { user } = useUser();
   const cart = useCart();
 
   // Subtotal, VAT, and total calculations
@@ -46,6 +50,38 @@ const Cart = () => {
 
     setDiscount(0); // Reset discount for invalid coupon
     return false;
+  };
+
+  const customer = {
+    clerkId: user?.id,
+    email: user?.emailAddresses[0].emailAddress,
+    firstName: user?.firstName,
+    lastName: user?.lastName,
+  };
+
+  const handleCheckout = async () => {
+    try {
+      if (!user) {
+        // Redirect to login page
+        router.push("sign-in");
+      } else {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/checkout`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              cartItems: cart.cartItems,
+              customer,
+            }),
+          }
+        );
+
+        const data = await res.json();
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -104,7 +140,7 @@ const Cart = () => {
         )}
       </div>
 
-      <div className="w-1/3 flex flex-col gap-8 bg-grey-1 rounded-lg px-4 py-5">
+      <div className="w-1/3 max-lg:w-full flex flex-col gap-8 bg-grey-1 rounded-lg px-4 py-5">
         <p className="text-heading4-bold pb-4">
           Summary{" "}
           <span>{`(${cart.cartItems.length} ${
@@ -133,6 +169,15 @@ const Cart = () => {
         </div>
 
         <CouponInput applyCoupon={applyCoupon} />
+
+        <div>
+          <button
+            className="border rounded-lg text-body-bold bg-white py-3 w-full hover:bg-black hover:text-white"
+            onClick={handleCheckout}
+          >
+            Proceed to Checkout
+          </button>
+        </div>
       </div>
     </div>
   );
