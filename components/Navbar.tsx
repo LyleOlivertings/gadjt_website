@@ -19,8 +19,19 @@ const Navbar = () => {
         <Image src="/logo.png" alt="logo" width={130} height={100} />
       </Link>
 
-      <div>
-        <Link href={"/"}>Home</Link>
+      <div className="flex gap-4 text-base-bold items-center">
+        <Link href={"/"} className="hover:text-red-1">
+          Home
+        </Link>
+        <Link
+          href={user ? "/wishlist" : "/sign-in"}
+          className="hover:text-red-1"
+        >
+          Wishlist
+        </Link>
+        <Link href={user ? "/orders" : "/sign-in"} className="hover:text-red-1">
+          Orders
+        </Link>
       </div>
 
       <div className="flex gap-3 items-center">
@@ -31,19 +42,24 @@ const Navbar = () => {
           <ShoppingCart />
           <p className="text-base-bold">Cart ({cart.cartItems.length})</p>
         </Link>
-        {user && (
-          <Menu
-            className="cursor-pointer"
-            onClick={() => setdropdownMenu(!dropdownMenu)}
-          />
-        )}
 
-        {user && dropdownMenu && (
+        <Menu
+          className="cursor-pointer lg:hidden"
+          onClick={() => setdropdownMenu(!dropdownMenu)}
+        />
+
+        {dropdownMenu && (
           <div className="absolute top-10 right-5 flex flex-col gap-2 p-3 rounded-lg border bg-white text-base-bold">
-            <Link href={"/wishlist"} className="hover:text-red-1">
+            <Link
+              href={user ? "/wishlist" : "/sign-in"}
+              className="hover:text-red-1"
+            >
               Wishlist
             </Link>
-            <Link href={"/orders"} className="hover:text-red-1">
+            <Link
+              href={user ? "/orders" : "/sign-in"}
+              className="hover:text-red-1"
+            >
               Orders
             </Link>
           </div>
